@@ -1,13 +1,18 @@
-import './ColorPicker';
+import { ColorPicker } from './ColorPicker';
+import { ColorSliderVertical } from './ColorSliderVertical';
+import './InitColorPicker';
 
 class App {
   bindTextElement() {
-    const input = document.getElementById('colorValue') as HTMLInputElement;
     const colorPicker = document.getElementById('colorPicker') as ColorPicker;
-    input.addEventListener('input', (event) => {
-      colorPicker.dataset.color = input.value;
+
+    const colorSliderVertical = document.getElementById('sliderPicker') as ColorSliderVertical;
+
+    colorPicker.addEventListener('colorChanged', (ev) => console.log(`aaa`, ev));
+
+    colorSliderVertical.addEventListener('colorChanged', (ev: CustomEvent) => {
+      colorPicker.dataset.color = ev.detail;
     });
-    colorPicker.addEventListener('colorChanged', (ev) => console.log(`aaa`, ev))
   }
 }
 
