@@ -1,17 +1,20 @@
-import { ColorPicker } from './ColorPicker';
-import { ColorSliderVertical } from './ColorSliderVertical';
+import { pColorPicker } from './pColorPicker';
+import { pColorPalette } from './pColorPalette';
 import './InitColorPicker';
 
 class App {
   bindTextElement() {
-    const colorPicker = document.getElementById('colorPicker') as ColorPicker;
+    const colorPicker = document.getElementById('colorPicker') as pColorPicker;
 
-    const colorSliderVertical = document.getElementById('sliderPicker') as ColorSliderVertical;
+    const colorSliderVertical = document.getElementById('sliderPicker') as pColorPalette;
 
-    colorPicker.addEventListener('colorChanged', (ev) => console.log(`aaa`, ev));
+    colorPicker.addEventListener('colorChanged', (ev: CustomEvent) => {
+      console.log(`aaa`, ev);
+    });
 
     colorSliderVertical.addEventListener('colorChanged', (ev: CustomEvent) => {
-      colorPicker.dataset.color = ev.detail;
+      // colorPicker.dataset['baseColor'] = ev.detail;
+      colorPicker.baseColor = ev.detail;
     });
   }
 }

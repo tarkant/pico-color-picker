@@ -1,5 +1,5 @@
-import { ColorPicker } from "./ColorPicker";
-import { ColorSliderVertical } from "./ColorSliderVertical";
+import { pColorPicker } from "./pColorPicker";
+import { pColorPalette } from "./pColorPalette";
 
-window.customElements.define('pico-picker', ColorPicker);
-window.customElements.define('pico-slider-vertical', ColorSliderVertical);
+window.customElements.define('pico-picker', pColorPicker);
+window.customElements.define('pico-slider-vertical', pColorPalette);

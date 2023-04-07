@@ -1,15 +1,15 @@
 const template = document.createElement('template');
 template.innerHTML = `
-  <canvas id="myCanvas" width="200" height="200"></canvas>
+  <canvas id="myCanvas" width="10" height="200"></canvas>
 `;
 
-export const DATASET = {
+const DATASET = {
     COLOR: 'data-color',
 };
 
-export const HEX_REGEX = /#[A-Fa-f0-9]{6}/;
+const HEX_REGEX = /#[A-Fa-f0-9]{6}/;
 
-export class ColorPicker extends HTMLElement {
+export class pColorPalette extends HTMLElement {
 
     static get observedAttributes() {
         return [DATASET.COLOR];
@@ -33,8 +33,6 @@ export class ColorPicker extends HTMLElement {
         this.dataset.currentColor = value;
     }
 
-    private gradient: CanvasGradient;
-
     private colorGradient: CanvasGradient;
 
     private canvas: HTMLCanvasElement;
@@ -49,6 +47,8 @@ export class ColorPicker extends HTMLElement {
     private y = 42;
     private radius = 4;
     private isDragging = false;
+
+    private dragOutsideListener;
 
     constructor() {
         super();
@@ -79,22 +79,22 @@ export class ColorPicker extends HTMLElement {
     }
 
     private drawCanvasBackground() {
-        this.gradient.addColorStop(0, "transparent");
-        this.gradient.addColorStop(1, "black");
 
-        this.colorGradient.addColorStop(0, "white");
-        this.colorGradient.addColorStop(1, this.baseColor);
+        this.colorGradient.addColorStop(0, "#ff0000");
+        this.colorGradient.addColorStop(1/6, "#ffff00");
+        this.colorGradient.addColorStop(2/6, "#00ff00");
+        this.colorGradient.addColorStop(3/6, "#00ffff");
+        this.colorGradient.addColorStop(4/6, "#0000ff");
+        this.colorGradient.addColorStop(5/6, "#ff00ff");
+        this.colorGradient.addColorStop(1, "#ff0000");
+
 
         this.context.fillStyle = this.colorGradient;
-        this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        this.context.fillStyle = this.gradient;
         this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
     private initGradients() {
-        this.gradient = this.context.createLinearGradient(0, 0, 0, 200);
-        this.colorGradient = this.context.createLinearGradient(0, 0, 200, 0);
+        this.colorGradient = this.context.createLinearGradient(0, 0, 0, this.canvas.height);
     }
 
     private getCursorPosition(canvas: HTMLCanvasElement, event: MouseEvent) {
@@ -125,7 +125,7 @@ export class ColorPicker extends HTMLElement {
     private getCurrentColor(event: MouseEvent) {
         if (event) {
             const { x, y } = this.getCursorPosition(this.canvas, event);
-            const color = this.context.getImageData(x, y, 1, 1);
+            const color = this.context.getImageData(1, y, 1, 1);
             return this.rgbToHex(color.data[0], color.data[1], color.data[2]);
         } else {
             const color = this.context.getImageData(this.x, this.y, 1, 1);
@@ -139,7 +139,7 @@ export class ColorPicker extends HTMLElement {
         this.currentColor = this.getCurrentColor(event);
 
         this.context.beginPath();
-        this.context.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+        this.context.roundRect(0, this.y, 10, this.radius, 1);
         this.context.lineWidth = 6;
         this.context.strokeStyle = "white";
         this.context.fillStyle = this.currentColor;
@@ -163,19 +163,25 @@ export class ColorPicker extends HTMLElement {
 
         this.canvas.addEventListener("mousedown", (event) => {
             this.isDragging = true;
-        });
-
-        this.canvas.addEventListener("mousemove", (event) => {
-            if (this.isDragging) {
-                this.x = event.clientX - this.canvas.offsetLeft;
-                this.y = event.clientY - this.canvas.offsetTop;
-                this.drawCircle(event);
-            }
+            this.dragOutsideListener = this.trackClientDrag.bind(this);
+            window.addEventListener("mousemove", this.dragOutsideListener);
+            window.addEventListener("mouseup", (event) => {
+                this.isDragging = false;
+                window.removeEventListener("mousemove", this.dragOutsideListener);
+            });
         });
 
         this.canvas.addEventListener("mouseup", (event) => {
             this.isDragging = false;
         });
+    }
+
+    private trackClientDrag(event: MouseEvent) {
+        if (this.isDragging) {
+            // Lock the axis to Y only
+            this.y = event.clientY - this.canvas.offsetTop;
+            this.drawCircle(event);
+        }
     }
 }
 
