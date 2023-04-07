@@ -1,24 +1,15 @@
-import './styles.scss';
-import Data from './assets/data.json';
+import './ColorPicker';
 
-export class App {
-    private message: string;
-
-    constructor(msg: string) {
-      this.message = msg;
-    }
-
-    public printHello(id: string) {
-      const container = document.getElementById(id);
-      if (!!container) {
-        container.innerHTML = this.message;
-        const a = 'aaaa';
-      } else {
-        console.error(`<element id="${id}" ...> does not exist !`);
-      }
-    }
+class App {
+  bindTextElement() {
+    const input = document.getElementById('colorValue') as HTMLInputElement;
+    const colorPicker = document.getElementById('colorPicker') as ColorPicker;
+    input.addEventListener('input', (event) => {
+      colorPicker.dataset.color = input.value;
+    });
+    colorPicker.addEventListener('colorChanged', (ev) => console.log(`aaa`, ev))
+  }
 }
 
-const appInstance = new App('Hello Webpack and TypeScript ♥');
-appInstance.printHello('app');
-console.log(Data);
+const app = new App();
+app.bindTextElement();
