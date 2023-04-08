@@ -1,5 +1,5 @@
 import { rgbToHex } from "./utils/ColorConversion";
-import { HEX_COLOR_REGEX } from "./utils/Constants";
+import { COLORS, DEFAULT_BASE_COLOR, HEX_COLOR_REGEX } from "./utils/Constants";
 
 export const DATASET = {
     BASE_COLOR: 'data-base-color',
@@ -11,7 +11,7 @@ export class pColorPicker extends HTMLElement {
         return [DATASET.BASE_COLOR];
     }
 
-    private _baseColor = '#FF0000';
+    private _baseColor = DEFAULT_BASE_COLOR;
 
     public get currentColor(): string {
         return this._currentColor;
@@ -28,13 +28,7 @@ export class pColorPicker extends HTMLElement {
 
     public set currentColor(value: string) {
         this._currentColor = value;
-        this.changedEvent = new CustomEvent('colorChanged', {
-            bubbles: true,
-            cancelable: false,
-            composed: true,
-            detail: value,
-        });
-        this.shadowRoot.dispatchEvent(this.changedEvent);
+        this.emitEvent(this.shadowRoot, 'colorChanged', value);
         this.dataset.currentColor = value;
     }
 
@@ -47,8 +41,6 @@ export class pColorPicker extends HTMLElement {
     private context: CanvasRenderingContext2D;
 
     private _currentColor = '#000000';
-
-    private changedEvent: Event;
 
     private x = 0;
     private y = 0;
@@ -68,6 +60,16 @@ export class pColorPicker extends HTMLElement {
         this.initXY();
         this.addEventListeners();
         this.renderCanvas();
+    }
+
+    private emitEvent(shadowRoot: ShadowRoot, eventName: string, value: any) {
+        const event = new CustomEvent(eventName, {
+            bubbles: true,
+            cancelable: false,
+            composed: true,
+            detail: value,
+        });
+        shadowRoot.dispatchEvent(event);
     }
 
     public attributeChangedCallback(name: string, oldValue: string, newValue: string) {
@@ -95,10 +97,10 @@ export class pColorPicker extends HTMLElement {
     }
 
     private drawCanvasBackground() {
-        this.gradient.addColorStop(0, "transparent");
-        this.gradient.addColorStop(1, "black");
+        this.gradient.addColorStop(0, COLORS.TRANSPARENT);
+        this.gradient.addColorStop(1, COLORS.BLACK);
 
-        this.colorGradient.addColorStop(0, "white");
+        this.colorGradient.addColorStop(0, COLORS.WHITE);
         this.colorGradient.addColorStop(1, this.baseColor);
 
         this.context.fillStyle = this.colorGradient;
