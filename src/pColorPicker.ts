@@ -47,6 +47,8 @@ export class pColorPicker extends HTMLElement {
     private radius = 4;
     private isDragging = false;
 
+    private dragOutsideListener;
+
     constructor() {
         super();
         const template = document.createElement('template');
@@ -115,28 +117,15 @@ export class pColorPicker extends HTMLElement {
         this.colorGradient = this.context.createLinearGradient(0, 0, this.canvas.width, 0);
     }
 
-    private getCursorPosition(canvas: HTMLCanvasElement, event: MouseEvent) {
-        const rect = canvas.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
-        return { x, y };
-    }
-
     private getCurrentColor(event?: MouseEvent) {
-        if (event) {
-            const { x, y } = this.getCursorPosition(this.canvas, event);
-            const color = this.context.getImageData(x, y, 1, 1);
-            return rgbToHex(color.data[0], color.data[1], color.data[2]);
-        } else {
-            const color = this.context.getImageData(this.x, this.y, 1, 1);
-            return rgbToHex(color.data[0], color.data[1], color.data[2]);
-        }
+        const color = this.context.getImageData(this.x, this.y, 1, 1);
+        return rgbToHex(color.data[0], color.data[1], color.data[2]);
     }
 
     private drawCircle(event?: MouseEvent) {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.drawCanvasBackground();
-        this.currentColor = this.getCurrentColor(event);
+        this.currentColor = this.getCurrentColor();
 
         this.context.beginPath();
         this.context.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
@@ -155,26 +144,42 @@ export class pColorPicker extends HTMLElement {
 
     private addEventListeners() {
         this.canvas.addEventListener("click", (event) => {
-            this.x = event.clientX - this.canvas.offsetLeft;
-            this.y = event.clientY - this.canvas.offsetTop;
+            this.x = this.getSafeCoords(event.clientX, this.canvas.offsetLeft, this.canvas.offsetWidth);
+            this.y = this.getSafeCoords(event.clientY, this.canvas.offsetTop, this.canvas.offsetHeight);
             this.drawCircle(event);
         });
 
         this.canvas.addEventListener("mousedown", (event) => {
             this.isDragging = true;
-        });
-
-        this.canvas.addEventListener("mousemove", (event) => {
-            if (this.isDragging) {
-                this.x = event.clientX - this.canvas.offsetLeft;
-                this.y = event.clientY - this.canvas.offsetTop;
-                this.drawCircle(event);
-            }
+            this.dragOutsideListener = this.trackClientDrag.bind(this);
+            window.addEventListener("mousemove", this.dragOutsideListener);
+            window.addEventListener("mouseup", (event) => {
+                this.isDragging = false;
+                window.removeEventListener("mousemove", this.dragOutsideListener);
+            });
         });
 
         this.canvas.addEventListener("mouseup", (event) => {
             this.isDragging = false;
         });
+    }
+
+    private trackClientDrag(event: MouseEvent) {
+        if (this.isDragging) {
+            this.x = this.getSafeCoords(event.clientX, this.canvas.offsetLeft, this.canvas.offsetWidth);
+            this.y = this.getSafeCoords(event.clientY, this.canvas.offsetTop, this.canvas.offsetHeight);
+            this.drawCircle(event);
+        }
+    }
+
+    // Gets safe coordinates to avoid having the color selector outside of the bounds
+    private getSafeCoords(coord: number, offset: number, max: number) {
+        if (coord <= offset) {
+            return 0;
+        } else if (coord - offset <= max) {
+            return coord - offset;
+        }
+        return max - 1;
     }
 }
 
