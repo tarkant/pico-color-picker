@@ -51,6 +51,9 @@ export class pColorPicker extends HTMLElement {
 
     constructor() {
         super();
+    }
+
+    public connectedCallback() {
         const template = document.createElement('template');
         template.innerHTML = `
         <canvas></canvas>
@@ -62,6 +65,10 @@ export class pColorPicker extends HTMLElement {
         this.initXY();
         this.addEventListeners();
         this.renderCanvas();
+        window.onresize = () => {
+            this.setCanvasSize();
+            this.renderCanvas();
+        };
     }
 
     private emitEvent(shadowRoot: ShadowRoot, eventName: string, value: any) {
@@ -93,9 +100,14 @@ export class pColorPicker extends HTMLElement {
     }
 
     private setCanvasSize() {
-        const bounds = this.parentElement.getBoundingClientRect();
-        this.canvas.width = bounds.width;
-        this.canvas.height = bounds.height;
+        const bounds = this?.parentElement?.getBoundingClientRect();
+        if (bounds) {
+            this.canvas.width = bounds.width;
+            this.canvas.height = bounds.height;
+        } else {
+            this.canvas.width = 200;
+            this.canvas.height = 200;
+        }
     }
 
     private drawCanvasBackground() {
@@ -144,8 +156,8 @@ export class pColorPicker extends HTMLElement {
 
     private addEventListeners() {
         this.canvas.addEventListener("click", (event) => {
-            this.x = this.getSafeCoords(event.clientX, this.canvas.offsetLeft, this.canvas.offsetWidth);
-            this.y = this.getSafeCoords(event.clientY, this.canvas.offsetTop, this.canvas.offsetHeight);
+            this.x = this.getSafeCoords(this.getCorrectedMouseXY(event).x, this.canvas.offsetLeft, this.canvas.offsetWidth);
+            this.y = this.getSafeCoords(this.getCorrectedMouseXY(event).y, this.canvas.offsetTop, this.canvas.offsetHeight);
             this.drawCircle(event);
         });
 
@@ -166,20 +178,34 @@ export class pColorPicker extends HTMLElement {
 
     private trackClientDrag(event: MouseEvent) {
         if (this.isDragging) {
-            this.x = this.getSafeCoords(event.clientX, this.canvas.offsetLeft, this.canvas.offsetWidth);
-            this.y = this.getSafeCoords(event.clientY, this.canvas.offsetTop, this.canvas.offsetHeight);
+            this.x = this.getSafeCoords(this.getCorrectedMouseXY(event).x, this.canvas.offsetLeft, this.canvas.offsetWidth);
+            this.y = this.getSafeCoords(this.getCorrectedMouseXY(event).y, this.canvas.offsetTop, this.canvas.offsetHeight);
             this.drawCircle(event);
         }
     }
 
     // Gets safe coordinates to avoid having the color selector outside of the bounds
     private getSafeCoords(coord: number, offset: number, max: number) {
+        console.warn(coord, offset, max);
         if (coord <= offset) {
             return 0;
         } else if (coord - offset <= max) {
             return coord - offset;
         }
         return max - 1;
+    }
+
+    // Get the corrected client's mouse X Y while taking into account the canvas's position
+    private getCorrectedMouseXY(event: MouseEvent): { x: number, y: number } {
+        const x = event.clientX;
+        const y = event.clientY;
+
+        const bounds = this.canvas.getBoundingClientRect();
+
+        return {
+            x: x - bounds.x,
+            y: y - bounds.y,
+        };
     }
 }
 
