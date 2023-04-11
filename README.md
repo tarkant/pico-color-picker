@@ -1,73 +1,46 @@
-# 📦 Webpack + TypeScript + SASS Boilerplate
+# 📦 PicoColorPicker (pcp)
 
-This is a simple boilerplate that provides you with all the tools you'll need to create a front-end Web application bundlet with Webpack.
+PicoColorPicker is a very small color picker focused on simplicity and ease of use.
 
-## 🍴 How to use this boilerplate ?
+## How does it work? 🤔
 
-Simple, just click the "Use this template" button or better, [click here](https://github.com/tarkant/webpack-typescript-sass-boilerplate/generate) and create your repo.
+Here is a simple example using the two web components :
 
-Next, run the good old :
-```bash
-npm install
+```html
+<html>
+  <body style="display: flex">
+    <div style="width: 200px; height: 200px;">
+      <pico-color-picker id="colorPicker"></pico-color-picker>
+    </div>
+    <div style="width: 10px; height: 200px; margin-left: 1rem;">
+      <pico-color-palette id="sliderPicker"></pico-slider-vertical>
+    </div>
+
+    <script>
+        const colorPicker = document.getElementById('colorPicker') as pColorPicker;
+
+        const colorSliderVertical = document.getElementById('sliderPicker') as pColorPalette;
+
+        colorPicker.addEventListener('colorChanged', (ev: CustomEvent) => {
+            // Selected color from the square
+            console.log(`Selected color is`, ev.detail);
+        });
+
+        colorSliderVertical.addEventListener('colorChanged', (ev: CustomEvent) => {
+            // Selected base color from the wheel
+            colorPicker.baseColor = ev.detail;
+        });
+    </script>
+  </body>
+</html>
 ```
-
-And you're good to go!
-
-## 💻 How to run the developement server ?
-
-Easy, run this command and your server will be on `http://localhost/8080`
-
-
-```bash
-npm start
-```
-
-If you need to change the port for whatever reason head to the package.json file and add the flag --port 9000 to the end of the start script and before the closing quote as follows :
-
-```json
-"scripts": {
-    "start": "webpack-dev-server --mode development --port 9000",
-}
-```
-
-Of course it's up to you if you want to use another port 😊 .
-
-## ⚒ How to build my app ?
-
-So you've finised everything and you want to ship it? Just run :
-
-```bash
-npm run build
-```
-
-This will generate a bundle in the `dist` folder that you can upload to your server 🌍 .
-
-## 🧹 Eslint for clean TS
-
-You'll notice that I've also included ESlint with some rules for the TS part. If you're not into that stuff, you can remove the `.eslintrc.json` and run the following command :
-
-```bash
-npm remove -D @typescript-eslint/eslint-plugin @typescript-eslint/eslint-plugin-tslint @typescript-eslint/parser eslint
-```
-
-Be mindful though that I won't really advise this because ESlint lets you keep your code clean.
-
-If you want to lint your code, just run :
-
-```bash
-npm run build
-```
-
-This will lint and fix all fixable lint issues.
 
 ## 🆘 Issues and contributions
 
-If you have an issue with the boilerplate or want to contribute, please let me know I'll be happy to interact with you.
+If you have an issue or suggestion for this tool, please let me know using the issues.
 
-Happy building!
+You can also make a PR if you have any suggestions.
 
 ## ⏲ Changelog
 
-- v1.1.3: Bumped packages version and changed updated devServer config.
-- v1.1.0: Bumped packages version and changed the path flattening for assets.
-- v1.0.0: Initial template ready to be used.
+- v1.0.0: Initial version with the color palette + color picker web components.
