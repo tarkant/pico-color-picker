@@ -4,7 +4,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const CopywebpackPlugin = require('copy-webpack-plugin');
 
-module.exports = {
+const config = {
   context: __dirname,
   entry: {
     app: './src/app.ts'
@@ -44,4 +44,17 @@ module.exports = {
   devServer: {
     static: path.join(__dirname, 'dist')
   }
+};
+
+module.exports = (env, argv) => {
+  if (argv.mode === 'production') {
+    config.entry.app = './src/index.ts';
+    config.output.filename = 'main.js';
+    config.output.libraryTarget = 'umd';
+    config.output.library = 'PicoColorPicker';
+    config.output.umdNamedDefine = true;
+    config.output.globalObject = 'this';
+    config.plugins = [];
+  }
+  return config;
 };
