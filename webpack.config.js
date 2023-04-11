@@ -40,15 +40,6 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: 'src/index.html'
     }),
-    new CopywebpackPlugin({
-      patterns: [
-        {
-          from: 'src/assets/**/*',
-          to: 'assets/[name][ext]',
-
-        },
-      ],
-    }),
   ],
   devServer: {
     static: path.join(__dirname, 'dist')
