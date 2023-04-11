@@ -14,6 +14,8 @@ export abstract class pColorPickerBase extends HTMLElement {
 
   protected dragOutsideListener;
 
+  protected isTouched = false;
+
   public abstract drawCanvasMarker(): void;
 
   protected emitEvent(shadowRoot: ShadowRoot, eventName: string, value: any) {
@@ -33,6 +35,7 @@ export abstract class pColorPickerBase extends HTMLElement {
 
   protected addEventListeners() {
     this.canvas.addEventListener("click", (event) => {
+      this.isTouched = true;
       this.x = this.getSafeCoords(this.getCorrectedMouseXY(event).x, this.canvas.offsetLeft, this.canvas.offsetWidth);
       this.y = this.getSafeCoords(this.getCorrectedMouseXY(event).y, this.canvas.offsetTop, this.canvas.offsetHeight);
       this.drawCanvasMarker();
@@ -40,6 +43,7 @@ export abstract class pColorPickerBase extends HTMLElement {
 
     this.canvas.addEventListener("mousedown", (event) => {
       this.isDragging = true;
+      this.isTouched = true;
       this.dragOutsideListener = this.trackClientDrag.bind(this);
       window.addEventListener("mousemove", this.dragOutsideListener);
       window.addEventListener("mouseup", (event) => {
@@ -70,12 +74,12 @@ export abstract class pColorPickerBase extends HTMLElement {
 
   // Gets safe coordinates to avoid having the color selector outside of the bounds
   private getSafeCoords(coord: number, offset: number, max: number) {
-    if (coord <= offset) {
+    if (coord <= 0) {
       return 0;
-    } else if (coord - offset <= max) {
-      return coord - offset;
+    } else if (coord >= max) {
+      return max - 1;
     }
-    return max - 1;
+    return coord;
   }
 
   // Get the corrected client's mouse X Y while taking into account the canvas's position
@@ -86,8 +90,8 @@ export abstract class pColorPickerBase extends HTMLElement {
     const bounds = this.canvas.getBoundingClientRect();
 
     return {
-      x: x - bounds.x,
-      y: y - bounds.y,
+      x: x - bounds.left,
+      y: y - bounds.top,
     };
   }
 

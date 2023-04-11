@@ -33,8 +33,10 @@ export class pColorPicker extends pColorPickerBase {
 
   public set currentColor(value: string) {
     this._currentColor = value;
-    this.emitEvent(this.shadowRoot, 'colorChanged', value);
-    this.dataset.currentColor = value;
+    if (this.isTouched) {
+      this.emitEvent(this.shadowRoot, 'colorChanged', value);
+      this.dataset.currentColor = value;
+    }
   }
 
   private gradient: CanvasGradient;
@@ -113,8 +115,10 @@ export class pColorPicker extends pColorPickerBase {
   }
 
   private initCanvas() {
-    this.context = this.canvas.getContext("2d", { willReadFrequently: true });
-    this.initGradients();
-    this.drawCanvasBackground();
+    if (this.canvas) {
+      this.context = this.canvas.getContext("2d", { willReadFrequently: true });
+      this.initGradients();
+      this.drawCanvasBackground();
+    }
   }
 }
