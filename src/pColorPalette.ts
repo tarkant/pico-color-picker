@@ -81,8 +81,10 @@ export class pColorPalette extends pColorPickerBase {
   }
 
   private renderCanvas() {
-    this.initCanvas();
-    this.drawCanvasMarker();
+    if (this.canvas) {
+      this.initCanvas();
+      this.drawCanvasMarker();
+    }
   }
 
   public drawCanvasMarker() {
@@ -100,11 +102,9 @@ export class pColorPalette extends pColorPickerBase {
   }
 
   private initCanvas() {
-    if (this.canvas) {
-      this.context = this.canvas.getContext("2d", { willReadFrequently: true });
-      this.initGradients();
-      this.drawCanvasBackground();
-    }
+    this.context = this.canvas.getContext("2d", { willReadFrequently: true });
+    this.initGradients();
+    this.drawCanvasBackground();
   }
 
 }

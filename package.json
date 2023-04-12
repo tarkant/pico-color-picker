@@ -1,6 +1,6 @@
 {
   "name": "pico-color-picker",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Simple color picker with 0 dependencies. Available as a web component or a simple JS library.",
   "main": "dist/main.js",
   "types": "dist/types/index.d.ts",

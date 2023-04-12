@@ -43,4 +43,5 @@ You can also make a PR if you have any suggestions.
 
 ## ⏲ Changelog
 
+- v1.0.1: Fixed an issue related to data change triggering unwanted canvas rendering and possibly generating an error.
 - v1.0.0: Initial version with the color palette + color picker web components.
