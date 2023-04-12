@@ -77,8 +77,10 @@ export class pColorPicker extends pColorPickerBase {
   }
 
   private renderCanvas() {
-    this.initCanvas();
-    this.drawCanvasMarker();
+    if (this.canvas) {
+      this.initCanvas();
+      this.drawCanvasMarker();
+    }
   }
 
   private drawCanvasBackground() {

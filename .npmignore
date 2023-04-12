@@ -8,3 +8,4 @@ node_modules
 tsconfig.build.json
 tsconfig.json
 webpack.config.js
+*.tgz
